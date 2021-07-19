@@ -26,6 +26,7 @@ func main() {
 	var kubeNamespace string
 	var jobTemplateYaml string
 	var kubeTimeout int
+	var concurrency int
 
 	var format = logging.MustStringFormatter(
 		`%{color}%{time:15:04:05.000} %{shortfile} ▶ %{level:.4s} %{id:03x}%{color:reset} %{message}`,
@@ -45,6 +46,7 @@ func main() {
 	flag.StringVar(&kubeNamespace, "kube-namespace", "default", "Kubernetes namespace to run jobs in")
 	flag.StringVar(&jobTemplateYaml, "job-template", "job.yaml", "Path to your job template YAML file")
 	flag.IntVar(&kubeTimeout, "kube-timeout", 15, "Timeout (in seconds) for Kubernetes API requests. Set to 0 for no timeout.  Default: 15")
+	flag.IntVar(&concurrency, "concurrency", 25, "Number of concurrent jobs the job watcher is able to create. Default: 25")
 
 	flag.Parse()
 
@@ -82,7 +84,7 @@ func main() {
 		log.Fatal("Error starting Buildkite API client:", err)
 	}
 
-	jobChan := buildkite.StartBuildkiteWatcher(ctx, wg, bkc, bkOrg, bkPipeline)
+	jobChan := buildkite.StartBuildkiteWatcher(ctx, wg, bkc, bkOrg, bkPipeline, concurrency)
 
 	go func(cancel context.CancelFunc) {
 		// If we get a SIGINT or SIGTERM, cancel the context and unblock 'done'
