@@ -39,8 +39,8 @@ func NewBuildkiteClient(bkAPIToken string, debug bool) (*buildkite.Client, error
 }
 
 // StartBuildkiteWatcher starts a watcher that monitors a pipeline for new jobs
-func StartBuildkiteWatcher(ctx context.Context, wg *sync.WaitGroup, client *buildkite.Client, org string, pipeline string) chan string {
-	c := make(chan string, 10)
+func StartBuildkiteWatcher(ctx context.Context, wg *sync.WaitGroup, client *buildkite.Client, org string, pipeline string, concurrency int) chan string {
+	c := make(chan string, concurrency)
 
 	go watchBuildkiteJobs(ctx, wg, client, org, pipeline, c)
 
